@@ -12,11 +12,11 @@ import java.util.Scanner;
 
 public class Main {
 
-    static List<String> availableCommands = Arrays.asList("create_client", "create_client_card", "get_client",
+    static List<String> availableCommands = Arrays.asList("create_client", "get_client",
             "get_client_amount", "get_client_accounts", "load_client_account",
             "create_transaction", "create_client_account", "close_client_account",
             "get_client_transactions", "help", "end");
-    static List<String> commandsDescriptions = Arrays.asList("creare cont client", "creare card client", "afis detalii client", "obtinere sold client",
+    static List<String> commandsDescriptions = Arrays.asList("creare cont client", "afis detalii client", "obtinere sold client",
             "Preluare conturi client", "Încărcare cont client", "Creeare tranzacție", "Creare cont client",
             "Închidere cont client", "Preluare transacții client",
             "Afișează comenzi", "Finalizare");
