@@ -4,6 +4,7 @@ import Accounts.Account;
 import Accounts.Transaction;
 import Card.CardGeneration;
 
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -25,13 +26,13 @@ public class Client {
         this.address = address;
     }
 
-    public Client(int clientId, Scanner in)
+    public Client(int clientId, Scanner in) throws ParseException
     {
         this.clientId = clientId;
         this.read(in);
     }
 
-    public void read(Scanner in)
+    public void read(Scanner in) throws ParseException
     {
         System.out.println("First name: ");
         this.firstName = in.nextLine();
@@ -109,5 +110,29 @@ public class Client {
     {
         this.address = address;
 
+    }
+
+    public String toString()
+    {
+        return "{" +
+                "customerId=" + clientId +
+                ", firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", CNP='" + CNP + '\'' +
+                ", email='" + email + '\'' +
+                ", phone='" + phone + '\'' +
+                ", address=" + address.toString() +
+                '}';
+    }
+
+    public String toCSV()
+    {
+        return clientId +
+                "," + firstName +
+                "," + lastName +
+                "," + CNP +
+                "," + email +
+                "," + phone +
+                "," + address.toCSV();
     }
 }
