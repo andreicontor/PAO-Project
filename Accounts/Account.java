@@ -67,4 +67,20 @@ public class Account {
 
         return "RO" + random_number + random_bank + uniqueId;
     }
+
+    public String toString()
+    {
+        return "Account{" +
+                "IBAN='" + IBAN + '\'' +
+                ", amount=" + amount +
+                ", name='" + name + '\'' +
+                ", clientId=" + clientId +
+                '}';
+    }
+
+    public String toCSV()
+    {
+        return IBAN + "," + amount + "," + name + "," + clientId;
+    }
+
 }
