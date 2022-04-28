@@ -1,5 +1,6 @@
 package Accounts;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class Transaction {
@@ -17,10 +18,37 @@ public class Transaction {
         this.details = details;
         this.transactionDate = new Date();
     }
+    public Transaction (String fromIBAN, String toIBAN, double amount, String details, Date transactionDate)
+    {
+        this.fromIBAN = fromIBAN;
+        this.toIBAN = toIBAN;
+        this.amount = amount;
+        this.details = details;
+        this.transactionDate = transactionDate;
+    }
 
     public String getFromIBAN() {return fromIBAN;}
     public String getToIBAN() {return toIBAN;}
     public double getAmount() {return amount;}
     public String getDetails() {return details;}
     public Date getTransactionDate() {return transactionDate;}
+
+    public String toString()
+    {
+        return "Transaction{" +
+                "from=" + fromIBAN +
+                ", to=" + toIBAN +
+                ", amount=" + amount +
+                ", details='" + details + '\'' +
+                ", transactionDate=" + (new SimpleDateFormat("yyyy-MM-dd+HH:mm:ss")).format(transactionDate) +
+                '}';
+    }
+
+    public String toCSV() {
+        return fromIBAN +
+                "," + toIBAN +
+                "," + amount +
+                "," + details +
+                "," + (new SimpleDateFormat("yyyy-MM-dd h:m:s")).format(transactionDate);
+    }
 }
