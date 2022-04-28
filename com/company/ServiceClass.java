@@ -5,6 +5,7 @@ import Card.*;
 import Client.*;
 
 import java.util.*;
+import java.text.ParseException;
 
 import static com.company.Main.availableCommands;
 import static com.company.Main.commandsDescriptions;
@@ -66,7 +67,7 @@ public class ServiceClass {
             this.accountsMap.put(account.getIBAN(), account);
     }
 
-    public void createClient(Scanner in)
+    public void createClient(Scanner in) throws ParseException
     {
         Client newClient = clientGeneration.createClient(in);
         this.clients.add(newClient);
