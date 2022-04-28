@@ -50,5 +50,23 @@ public class Address {
         this.ZIPCode = ZIPCode;
     }
 
+    public String toString()
+    {
+        return "{" +
+                "street='" + street + '\'' +
+                ", city='" + city + '\'' +
+                ", county='" + county + '\'' +
+                ", postalCode=" + ZIPCode +
+                '}';
+    }
+
+    public String toCSV()
+    {
+        return street +
+                "," + city +
+                "," + county+
+                "," + ZIPCode;
+    }
+
 
 }
