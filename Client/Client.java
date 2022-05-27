@@ -9,6 +9,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Scanner;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
 
 public class Client {
     private final int clientId;
@@ -30,6 +33,20 @@ public class Client {
     {
         this.clientId = clientId;
         this.read(in);
+    }
+
+    public Client(int customerId, ResultSet in) throws SQLException {
+        this.clientId = customerId;
+        this.read(in);
+    }
+
+    public void read(ResultSet in) throws SQLException {
+        this.firstName = in.getString("firstName");
+        this.lastName = in.getString("lastName");
+        this.CNP = in.getString("CNP");
+        this.email = in.getString("email");
+        this.phone = in.getString("phone");
+        this.address = new Address(in);
     }
 
     public void read(Scanner in) throws ParseException
