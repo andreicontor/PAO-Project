@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 public class Account {
     protected String IBAN;
@@ -31,6 +33,15 @@ public class Account {
         this.name = name;
         this.clientId = clientId;
     }
+
+    public Account(ResultSet in) throws SQLException {
+        this.IBAN = in.getString("IBAN");
+        this.amount = in.getDouble("amount");
+        this.name = in.getString("name");
+        this.clientId = in.getInt("customerId");
+    }
+
+
     public List<Transaction> filterTransactions(List<Transaction> allTransactions)
     {
         List<Transaction> transactions = new ArrayList<>();
@@ -50,6 +61,10 @@ public class Account {
         Card newCard = cardGeneration.addCard(this.IBAN, name);
         cards.add(newCard);
     }
+    public int compare(Transaction transaction1, Transaction transaction2){
+        return transaction1.getTransactionDate().compareTo(transaction2.getTransactionDate());
+    }
+
     public void setAmount(double amount)
     {
         this.amount = amount;
