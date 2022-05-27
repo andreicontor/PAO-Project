@@ -82,7 +82,7 @@ public class Main {
 
 
 
-package com.company;
+/*package com.company;
 
 import Accounts.Account;
 import Accounts.Account_Singleton;
@@ -153,5 +153,87 @@ public class Main {
         Client_Singleton.getInstance().dumpToCSV();
         Account_Singleton.getInstance().dumpToCSV();
         Transaction_Singleton.getInstance().dumpToCSV();
+    }
+}*/
+
+package com.company;
+
+import Client.ClientDatabase;
+import Client.Client_Singleton;
+import Accounts.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.util.*;
+
+public class Main {
+
+    static List<String> availableCommands = Arrays.asList("create_customer", "create_customer_card", "get_customer", "get_customer_amount", "get_customer_accounts", "load_customer_account", "create_transaction", "create_customer_account", "close_customer_account", "get_customer_transactions", "help", "end");
+    static List<String> commandsDescriptions = Arrays.asList("Creează cont client", "Creează card client", "Afișare detalii client", "Preluare sold client", "Preluare conturi client", "Încărcare cont client", "Creeare tranzacție", "Creare cont client", "Închidere cont client", "Preluare transacții client", "Afișează comenzi", "Finalizare");
+
+    public static Connection getConnection() {
+        try {
+            String url = "jdbc:mysql://localhost:3306/proiectpao"; /////nu este facuta baza de date
+            String user = "root";
+            String password = "Parola";  ////nu este facuta baza de date
+
+            return DriverManager.getConnection(url, user, password);
+        } catch (SQLException e) {
+            System.out.println(e.toString());
+            return null;
+        }
+    }
+
+    private static void printAllCommands() {
+        for (int i = 0; i < availableCommands.size(); ++i)
+            System.out.println((i + 1) + ". " + commandsDescriptions.get(i) + " (" + availableCommands.get(i) + ")");
+    }
+
+
+    public static void main(String[] args) {
+        Scanner in = new Scanner(System.in);
+        boolean end = false;
+        var connection = Main.getConnection();
+
+        var customerDatabase = new ClientDatabase(connection);
+        var transactionDatabase = new TransactionDatabase(connection);
+        var accountDatabase = new AccountDatabase(connection);
+
+        ServiceClass mainService = new ServiceClass(customerDatabase, transactionDatabase, accountDatabase);
+        Audit auditService = new Audit();
+
+        while (!end) {
+            System.out.println("Insert command: (help - see commands)");
+            String command = in.nextLine().toLowerCase(Locale.ROOT);
+            try {
+                switch (command) {
+                    case "create_customer" -> mainService.createClient(in);
+                    case "create_customer_card" -> mainService.createClientCard(in);
+                    case "get_customer" -> mainService.getClient(in);
+                    case "get_customer_amount" -> mainService.getClientAmount(in);
+                    case "get_customer_accounts" -> mainService.getClientAccounts(in);
+                    case "get_customer_account" -> mainService.getClientAccount(in);
+                    case "load_customer_account" -> mainService.loadClientAccount(in);
+                    case "create_transaction" -> mainService.createTransaction(in);
+                    case "create_customer_account" -> mainService.createClientAccount(in);
+                    case "close_customer_account" -> mainService.closeAccount(in);
+                    case "get_customer_transactions" -> mainService.getClientTransactions(in);
+                    case "help" -> Main.printAllCommands();
+                    case "end" -> end = true;
+                }
+                if (availableCommands.contains(command))
+                    auditService.logAction(command);
+            } catch (Exception e) {
+                System.out.println(e.toString());
+            }
+        }
+
+        try {
+            assert connection != null;
+            connection.close();
+        } catch (Exception e) {
+            System.out.println(e.toString());
+        }
+
     }
 }
