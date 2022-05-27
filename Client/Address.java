@@ -1,5 +1,7 @@
 package Client;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Scanner;
 
 public class Address {
@@ -17,6 +19,11 @@ public class Address {
     {
         this.read(in);
     }
+
+    public Address(ResultSet in) throws SQLException {
+        this.read(in);
+    }
+
     public void read(Scanner in)
     {
         System.out.println("Street: ");
@@ -28,6 +35,14 @@ public class Address {
         System.out.println("Postal code: ");
         this.ZIPCode = Integer.parseInt(in.nextLine());
     }
+    public void read(ResultSet in) throws SQLException {
+        this.street = in.getString("street");
+        this.city = in.getString("city");
+        this.county = in.getString("county");
+        this.ZIPCode = in.getInt("ZIPCode");
+    }
+
+
 
     public String getStreet() {return street;}
     public int getZIPCode() {return ZIPCode;}
