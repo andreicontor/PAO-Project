@@ -20,6 +20,11 @@ public class ServiceClass {
     private final ClientGeneration clientGeneration = new ClientGeneration();
     private final AccountGeneration accountGeneration = new AccountGeneration();
 
+    private ClientDatabase customerDatabase = null;
+    private TransactionDatabase transactionDatabase = null;
+    private AccountDatabase accountDatabase = null;
+
+
 
     public List<Client> getClients() {return clients;}
     public List<Account> getAccounts() {return accounts;}
@@ -37,6 +42,18 @@ public class ServiceClass {
     public void setTransactions(List<Transaction> transactions)
     {
         this.transactions = transactions;
+    }
+
+    public ServiceClass(ClientDatabase customerDatabase, TransactionDatabase transactionDatabase, AccountDatabase accountDatabase) {
+        this.customerDatabase = customerDatabase;
+        this.transactionDatabase = transactionDatabase;
+        this.accountDatabase = accountDatabase;
+
+        this.clients = customerDatabase.read();
+        this.transactions = transactionDatabase.read();
+        this.accounts = accountDatabase.read();
+
+        this.linkAccounts();
     }
 
     private Client getClientFromInput(Scanner in)
@@ -67,14 +84,16 @@ public class ServiceClass {
             this.accountsMap.put(account.getIBAN(), account);
     }
 
-    public void createClient(Scanner in) throws ParseException
-    {
-        Client newClient = clientGeneration.createClient(in);
-        this.clients.add(newClient);
-        var newAccount = accountGeneration.createAccount(newClient.getFirstName() + " " + newClient.getLastName(), newClient.getClientId());
+    public void createClient(Scanner in) throws ParseException {
+        Client newCustomer = clientGeneration.createClient(in);
+        this.clients.add(newCustomer);
+        var newAccount = accountGeneration.createAccount(newCustomer.getFirstName() + " " + newCustomer.getLastName(), newCustomer.getClientId());
         this.accounts.add(newAccount);
-        var x = newClient.getClientId();
-        System.out.println("Client created, client id is:" + x);
+        if(this.customerDatabase!=null)
+            this.customerDatabase.create(newCustomer);
+        if(this.accountDatabase!=null)
+            this.accountDatabase.create(newAccount);
+        System.out.println("Customer created");
     }
 
     private Account getAccountFromInput(Scanner in, Client client)
@@ -104,14 +123,15 @@ public class ServiceClass {
         System.out.println(clientsAccounts.toString());
     }
 
-    public void createClientAccount(Scanner in)
-    {
-        var client = this.getClientFromInput(in);
+    public void createClientAccount(Scanner in) throws Exception {
+        var customer = this.getClientFromInput(in);
         System.out.println("Account name: ");
         String name = in.nextLine();
-        Account newAccount = this.accountGeneration.createAccount(name, client.getClientId());
+        Account newAccount = this.accountGeneration.createAccount(name, customer.getClientId());
         accounts.add(newAccount);
         accountsMap.put(newAccount.getIBAN(), newAccount);
+        if(this.accountDatabase!=null)
+            this.accountDatabase.create(newAccount);
         System.out.println("Account created");
     }
 
@@ -133,8 +153,7 @@ public class ServiceClass {
         clientAccounts.get(0).setAmount(amount);
         System.out.println("The account has been loaded!");
     }
-    public void createTransaction(Scanner in)
-    {
+    public void createTransaction(Scanner in) throws Exception {
         System.out.println("From account (IBAN): ");
         var IBAN1 = in.nextLine();
         System.out.println("To account (IBAN): ");
@@ -151,22 +170,40 @@ public class ServiceClass {
         if(accountsMap.containsKey(IBAN2))
             account2 = accountsMap.get(IBAN2);
 
+        if(IBAN1.equals(IBAN2))
+            throw new Exception("Cannot send transaction to same account");
+        if(account1==null || account2==null)
+            throw new Exception("Cannot find IBAN numbers!");
+        if(account1.getAmount() < amount)
+            throw new Exception("Insufficient founds!");
 
         account1.setAmount(account1.getAmount() - amount);
         account2.setAmount(account2.getAmount() + amount);
 
         var newTransaction = new Transaction(IBAN1, IBAN2, amount, description);
         this.transactions.add(newTransaction);
+        if(this.transactionDatabase!=null)
+            this.transactionDatabase.create(newTransaction);
+        if(this.accountDatabase!=null){
+            this.accountDatabase.update(account1);
+            this.accountDatabase.update(account2);
+        }
         System.out.println("Transaction finished");
     }
 
-    public void closeAccount(Scanner in)
-    {
-        var client = this.getClientFromInput(in);
-        var account = this.getAccountFromInput(in, client);
 
+    public void closeAccount(Scanner in) throws Exception {
+        var customer = this.getClientFromInput(in);
+        var account = this.getAccountFromInput(in, customer);
+
+        if(customer.filterAccounts(this.accounts).size()<=1)
+            throw new Exception("There has to be at least one bank account associated with the user!");
+        if(account.getAmount()!=0)
+            throw new Exception("The account savings are not empty!");
         this.accountsMap.remove(account.getIBAN());
         this.accounts.remove(account);
+        if(this.accountDatabase!=null)
+            this.accountDatabase.delete(account);
         System.out.println("Account closed!");
     }
 
